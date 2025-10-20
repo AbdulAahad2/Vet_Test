@@ -1,0 +1,61 @@
+<odoo>
+    <!-- Action -->
+    <record id="action_vet_service" model="ir.actions.act_window">
+        <field name="name">Vet Services</field>
+        <field name="res_model">vet.service</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first Vet Service, Test, or Vaccine
+            </p>
+        </field>
+    </record>
+
+    <!-- List View -->
+    <record id="view_vet_service_list" model="ir.ui.view">
+        <field name="name">vet.service.list</field>
+        <field name="model">vet.service</field>
+        <field name="arch" type="xml">
+            <list string="Vet Services">
+                <field name="name"/>
+                <field name="service_type"/>
+                <field name="product_id"/>
+                <field name="price"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_vet_service_form" model="ir.ui.view">
+        <field name="name">vet.service.form</field>
+        <field name="model">vet.service</field>
+        <field name="arch" type="xml">
+            <form string="Vet Service">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="service_type"/>
+                        <field name="description"/>
+                    </group>
+
+                    <group>
+                        <field name="product_id"
+                               options="{'no_create': False}"
+                               context="{'default_type':'service'}"/>
+                        <field name="price"
+                               modifiers="{'readonly': [('product_id', '!=', False)]}"/>
+                    </group>
+                </sheet>
+
+                <footer>
+                    <button name="action_add_product"
+                            string="Add Product"
+                            type="object"
+                            class="btn-primary"/>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

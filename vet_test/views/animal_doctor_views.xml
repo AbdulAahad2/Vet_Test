@@ -1,0 +1,59 @@
+<odoo>
+    <!-- Animal Doctor List View -->
+    <record id="view_animal_doctor_list" model="ir.ui.view">
+        <field name="name">vet.animal.doctor.list</field>
+        <field name="model">vet.animal.doctor</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" string="Doctor Name"/>
+                <field name="specialization" string="Specialization"/>
+                <field name="contact_number" string="Contact Number"/>
+                <field name="email" string="Email" widget="email"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Animal Doctor Form View -->
+    <record id="view_animal_doctor_form" model="ir.ui.view">
+        <field name="name">vet.animal.doctor.form</field>
+        <field name="model">vet.animal.doctor</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_archive" string="Archive" type="object" class="oe_highlight" confirm="Are you sure you want to archive this doctor record?"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" string="Doctor Name" placeholder="e.g. Dr. John Smith"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Contact Information">
+                            <field name="contact_number" string="Contact Number" placeholder="e.g. +1234567890"/>
+                            <field name="email" string="Email" widget="email" placeholder="e.g. john.smith@vetclinic.com"/>
+                        </group>
+                        <group string="Professional Details">
+                            <field name="specialization" string="Specialization" placeholder="e.g. Veterinary Surgery"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_vet_animal_doctor" model="ir.actions.act_window">
+        <field name="name">Animal Doctors</field>
+        <field name="res_model">vet.animal.doctor</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to create a new doctor record.
+            </p>
+            <p>
+                Manage veterinary doctors, their contact details, and appointments.
+            </p>
+        </field>
+    </record>
+</odoo>

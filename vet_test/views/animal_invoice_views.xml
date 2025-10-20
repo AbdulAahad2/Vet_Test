@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Search View -->
+    <record id="view_vet_animal_visit_invoice_search" model="ir.ui.view">
+        <field name="name">vet.animal.visit.invoice.search</field>
+        <field name="model">account.move</field>
+        <field name="priority" eval="100"/>
+        <field name="arch" type="xml">
+            <search string="Invoices">
+                <field name="name"/>
+                <field name="invoice_date" string="Invoice Date"/>
+                <field name="partner_id"/>
+                <field name="payment_method"/>
+                <!-- ADD: Analytic Account Filter -->
+                <field name="analytic_display" string="Branch"/>
+
+                <filter string="Draft" name="filter_draft" domain="[('state','=','draft')]"/>
+                <filter string="Posted" name="filter_posted" domain="[('state','=','posted')]"/>
+                <filter string="Paid" name="filter_paid" domain="[('payment_state','=','paid')]"/>
+                <filter string="Cash Payment" name="filter_cash" domain="[('payment_method','=','cash')]"/>
+                <filter string="Bank Payment" name="filter_bank" domain="[('payment_method','=','bank')]"/>
+                <filter string="Online/Credit Payment" name="filter_online" domain="[('payment_method','in',('online','credit','credit_card'))]"/>
+
+                <group expand="0" string="Group By">
+                    <filter string="Invoice Date" name="group_invoice_date" context="{'group_by': 'invoice_date'}"/>
+                    <filter string="Payment Method" name="group_payment_method" context="{'group_by': 'payment_method'}"/>
+                    <filter string="Customer" name="group_customer" context="{'group_by': 'partner_id'}"/>
+                    <!-- ADD: Group by Branch -->
+                    <filter string="Branch" name="group_branch" context="{'group_by': 'analytic_display'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- List View -->
+    <record id="view_vet_animal_visit_invoice_list" model="ir.ui.view">
+        <field name="name">vet.animal.visit.invoice.list</field>
+        <field name="model">account.move</field>
+        <field name="priority" eval="100"/>
+        <field name="arch" type="xml">
+            <list string="Invoices" editable="bottom" delete="false">
+                <field name="name" string="Invoice Number"/>
+                <field name="invoice_date" string="Invoice Date"/>
+                <field name="payment_method" string="Payment Method"/>
+                <field name="amount_total" string="Total Amount" widget="monetary"/>
+                <field name="payment_state" string="Payment Status"/>
+                <field name="animal_display_name" string="Animal Name" optional="show"/>
+                <field name="state" string="Status" optional="show"/>
+                <field name="analytic_display" string="Branch" optional="hide"/>
+
+                <!-- HIDDEN FIELDS: ONLY FOR TOTALS -->
+                <field name="dashboard_total_cash" invisible="1" sum="Cash Total"/>
+                <field name="dashboard_total_bank" invisible="1" sum="Bank Total"/>
+                <field name="dashboard_total_online" invisible="1" sum="Online Total"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="invoice_list_action" model="ir.actions.act_window">
+        <field name="name">Invoices</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">list,form</field>
+        <field name="views" eval="[
+            (ref('vet_test.view_vet_animal_visit_invoice_list'), 'list'),
+            (ref('account.view_move_form'), 'form')
+        ]"/>
+        <field name="view_id" ref="vet_test.view_vet_animal_visit_invoice_list"/>
+        <field name="search_view_id" ref="vet_test.view_vet_animal_visit_invoice_search"/>
+        <field name="domain">[('move_type', '=', 'out_invoice')]</field>
+        <field name="context">{}</field>
+    </record>
+</odoo>

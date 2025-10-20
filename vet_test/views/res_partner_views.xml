@@ -1,0 +1,24 @@
+<odoo>
+    <record id="view_partner_form_inherit_vet" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.vet.animals</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <sheet position="inside">
+                <notebook>
+                    <page string="Animals">
+                        <field name="animal_ids">
+                            <list editable="bottom">
+                                <field name="microchip_no" string="Animal ID"/>
+                                <field name="name"/>
+                                <field name="species"/>
+                                <field name="dob"/>
+                            </list>
+                        </field>
+
+                    </page>
+                </notebook>
+            </sheet>
+        </field>
+    </record>
+</odoo>

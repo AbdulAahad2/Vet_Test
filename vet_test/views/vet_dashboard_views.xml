@@ -1,0 +1,89 @@
+<odoo>
+    <!-- Kanban Dashboard -->
+    <record id="view_vet_dashboard_kanban" model="ir.ui.view">
+        <field name="name">vet.dashboard.kanban</field>
+        <field name="model">vet.dashboard</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_dashboard" sample="1">
+                <field name="name"/>
+                <field name="value"/>
+                <field name="color"/>
+                <field name="icon"/>
+                <field name="url"/>
+                <field name="pending_count"/>
+                <field name="paid_count"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <!-- Normal metric cards -->
+                        <t t-if="record.color.raw_value != 'graph'">
+                            <a t-att-href="record.url.raw_value" class="o_kanban_clickable text-decoration-none">
+                                <div t-attf-class="o_kanban_record card bg-#{record.color.raw_value} text-white p-3 m-2" style="height:138px">
+                                    <div class="d-flex justify-content-between align-items-center" style="height:96px">
+                                        <div>
+                                            <i t-attf-class="fas #{record.icon.raw_value} fa-2x" t-att-title="record.name.raw_value"/>
+                                        </div>
+                                        <div class="text-end">
+                                            <h3 t-esc="record.value.raw_value"/>
+                                            <p t-esc="record.name.raw_value"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </t>
+
+                        <!-- Invoices Overview card -->
+                        <t t-else="">
+                            <a t-att-href="record.url.raw_value" class="o_kanban_clickable text-decoration-none">
+                                <div class="o_kanban_record card p-3 m-2 bg-danger text-dark">
+                                    <div class="d-flex align-items-center">
+                                        <i t-attf-class="fas #{record.icon.raw_value} fa-2x me-2" style="margin-top:40px"/>
+                                        <h4 class="mb-0" style="margin-top:40px; margin-left:105px ">Invoices Overview</h4>
+                                    </div>
+                                    <div class="mt-2">
+                                        <p class="mb-0" style="margin-left:225px ; margin-top:-85px ">Paid: <strong t-esc="record.paid_count.raw_value"/></p>
+                                        <p class="mb-0" style="margin-left:210px">Pending: <strong t-esc="record.pending_count.raw_value"/></p>
+                                    </div>
+                                    <p class="mt-1 mb-0 text-muted " style="margin-left:10px">Click to view full graph</p>
+                                </div>
+                            </a>
+                        </t>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Action to open Vet Dashboard -->
+    <record id="action_vet_dashboard" model="ir.actions.act_window">
+        <field name="name">Vet Dashboard</field>
+        <field name="res_model">vet.dashboard</field>
+        <field name="view_mode">kanban</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                This dashboard displays statistics for animals, owners, doctors, and invoices.
+            </p>
+        </field>
+    </record>
+
+    <!-- Graph view for invoices Paid vs Pending -->
+    <record id="view_account_move_invoice_graph" model="ir.ui.view">
+        <field name="name">account.move.graph.invoices</field>
+        <field name="model">account.move</field>
+        <field name="arch" type="xml">
+            <graph string="Invoices Overview" type="bar" stacked="false">
+                <field name="id" type="measure"/>
+                <field name="payment_state" type="row"/>
+                <field name="move_type" type="col"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Action for graph view -->
+    <record id="action_invoices_graph" model="ir.actions.act_window">
+        <field name="name">Invoices Overview</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">graph</field>
+        <field name="view_id" ref="view_account_move_invoice_graph"/>
+        <field name="domain">[('move_type','=','out_invoice')]</field>
+    </record>
+</odoo>

@@ -1,0 +1,261 @@
+<odoo>
+    <!-- Report Action -->
+    <record id="action_report_visit_receipt" model="ir.actions.report">
+        <field name="name">Visit Receipt</field>
+        <field name="model">vet.animal.visit</field>
+        <field name="report_type">qweb-html</field>
+        <field name="report_name">vet_test.report_visit_receipt</field>
+        <field name="report_file">vet_test.report_visit_receipt</field>
+        <field name="print_report_name">'Visit Receipt - %s' % (object.name)</field>
+    </record>
+
+    <!-- QWeb Report Template -->
+    <template id="report_visit_receipt">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+
+                <!-- Embedded CSS -->
+                <style type="text/css" media="print">
+                    @page {
+                        size: 80mm auto;
+                        margin: 0;
+                    }
+                    body {
+                        margin: 0;
+                        font-family: 'Courier New', monospace;
+                        font-size: 13px; /* bigger, readable */
+                        line-height: 1.4;
+                    }
+                    .page {
+                        width: 80mm;
+                        padding: 2mm;
+                        text-align: left;
+                    }
+                    img.logo {
+                        max-width: 55mm;
+                        height: auto;
+                        margin-bottom: 2px;
+                        display: block;
+                    }
+                    .header {
+                        margin-bottom: 6px;
+                        border-bottom: 1px solid #000;
+                        padding-bottom: 4px;
+                    }
+                    .header div {
+                        margin: 1px 0;
+                    }
+                    .info-section {
+                        margin: 3px 0;
+                        padding: 2px;
+                        border: 1px solid #ccc;
+                        background: #f9f9f9;
+                    }
+                    .info-section.animal {
+                        background: #e8f5e8;
+                    }
+                    .info-section.owner {
+                        background: #e3f2fd;
+                    }
+                    .items-header {
+                        font-weight: bold;
+                        margin: 4px 0 2px 0;
+                        padding-bottom: 1px;
+                        border-bottom: 2px solid #000;
+                        text-transform: uppercase;
+                    }
+                    .items-end {
+                        border-bottom: 2px solid #000;
+                        margin: 3px 0;
+                        padding-bottom: 1px;
+                    }
+                    .line-item {
+                        display: flex;
+                        justify-content: space-between;
+                        padding: 2px 0;
+                        border-bottom: 1px dotted #aaa;
+                    }
+                    .line-item div:first-child {
+                        max-width: 60%;
+                        word-wrap: break-word;
+                    }
+                    .totals {
+                        border-top: 2px solid #000;
+                        margin-top: 5px;
+                        padding-top: 5px;
+                        font-size: 14px;
+                        font-weight: bold;
+                    }
+                    .totals div {
+                        display: flex;
+                        justify-content: space-between;
+                        margin: 2px 0;
+                        font-weight: bold;
+                    }
+                    .totals .discount {
+                        color: #f57c00;
+                        font-size: 13px;
+                    }
+                    .totals .grand {
+                        font-weight: bold !important;
+                        font-size: 16px !important;
+                        border-top: 2px double #000;
+                        padding-top: 4px;
+                        background: #f0f0f0;
+                        margin-top: 3px;
+                    }
+                    .totals .balance {
+                        color: #d32f2f;
+                        font-size: 15px;
+                    }
+                    .totals .received {
+                        color: #2e7d32;
+                        font-size: 15px;
+                    }
+                    .footer {
+                        margin-top: 8px;
+                        border-top: 1px dashed #aaa;
+                        padding-top: 4px;
+                        font-size: 11px;
+                        text-align: center;
+                    }
+                    .qr {
+                        text-align: center;
+                        margin: 6px 0;
+                    }
+                    .payment-status {
+                        text-align: center;
+                        margin: 4px 0;
+                        font-weight: bold;
+                        font-size: 14px;
+                        padding: 3px;
+                        border: 1px solid #ccc;
+                    }
+                </style>
+
+                <div class="page">
+
+                    <!-- Header -->
+                    <div class="header">
+                        <img t-att-src="image_data_uri(env.company.logo)" class="logo"/>
+                        <div><strong>Ticket:</strong> <t t-esc="doc.name or 'VIS00000'"/></div>
+                        <div><strong>Date:</strong> <t t-esc="doc.date.strftime('%m/%d/%Y %I:%M %p') if doc.date else 'Today'"/></div>
+                        <div><strong>Served by:</strong> <t t-esc="doc.doctor_id.name or 'Staff'"/></div>
+                    </div>
+
+                    <!-- Animal Info -->
+                    <t t-if="doc.animal_id">
+                        <div class="info-section animal">
+                            <div><strong>Animal Name:</strong> <t t-esc="doc.animal_id.name or 'N/A'"/></div>
+                            <t t-if="doc.animal_id.microchip_no">
+                                <div style="color:#555;"><strong>Animal ID:</strong> <t t-esc="doc.animal_id.microchip_no"/></div>
+                            </t>
+                        </div>
+                    </t>
+
+                    <!-- Owner Info -->
+                    <t t-if="doc.owner_id">
+                        <div class="info-section owner">
+                            <div><strong>Owner Name:</strong> <t t-esc="doc.owner_id.name or 'N/A'"/></div>
+                            <t t-if="doc.owner_id.contact_number">
+                                <div><strong>Contact Number:</strong> <t t-esc="doc.owner_id.contact_number"/></div>
+                            </t>
+                        </div>
+                    </t>
+
+                    <!-- Items Section -->
+                    <t t-if="doc.receipt_lines">
+                        <div class="items-header">
+                            ITEMS
+                        </div>
+                        <t t-foreach="doc.receipt_lines" t-as="line">
+                            <div class="line-item">
+                                <div>
+                                    <t t-esc="line.product_id.display_name or line.service_id.name or 'Service'"/>
+                                    <t t-if="line.quantity and line.quantity != 1">
+                                        <span style="font-size:12px;"> (x<t t-esc="line.quantity"/>)</span>
+                                    </t>
+                                </div>
+                                <div style="font-weight:bold;">$<t t-esc="'%.2f' % (line.subtotal or 0.0)"/></div>
+                            </div>
+                        </t>
+                        <t t-if="doc.treatment_charge">
+                            <div class="line-item">
+                                <div>Treatment Charge</div>
+                                <div style="font-weight:bold;">$<t t-esc="'%.2f' % (doc.treatment_charge or 0.0)"/></div>
+                            </div>
+                        </t>
+                        <div class="items-end"></div>
+                    </t>
+
+                    <!-- Payment Status -->
+                    <t t-if="doc.payment_state == 'paid'">
+                        <div class="payment-status" style="color:#2e7d32; background:#e8f5e8; border-color:#4caf50;">
+                            PAID IN FULL
+                        </div>
+                    </t>
+                    <t t-if="doc.payment_state == 'not_paid'">
+                        <div class="payment-status" style="color:#d32f2f; background:#ffebee; border-color:#f44336;">
+                            PAYMENT PENDING
+                        </div>
+                    </t>
+                    <t t-if="doc.payment_state == 'partial'">
+                        <div class="payment-status" style="color:#f57c00; background:#fff3e0; border-color:#ff9800;">
+                            PARTIAL PAYMENT
+                        </div>
+                    </t>
+
+                    <!-- Totals -->
+                    <div class="totals">
+                        <div>
+                            <span>Subtotal:</span>
+                            <span>$<t t-esc="'%.2f' % (doc.subtotal or 0.0)"/></span>
+                        </div>
+
+                        <!-- Percentage Discount -->
+                        <t t-if="doc.discount_percent and doc.discount_percent > 0">
+                            <div class="discount">
+                                <span>Discount (<t t-esc="doc.discount_percent"/>%):</span>
+                                <span>($<t t-esc="'%.2f' % (doc.subtotal * doc.discount_percent / 100 or 0.0)"/>)</span>
+                            </div>
+                        </t>
+
+                        <!-- Fixed Discount -->
+                        <t t-if="doc.discount_fixed and doc.discount_fixed > 0">
+                            <div class="discount">
+                                <span>Discount (Fixed):</span>
+                                <span>($<t t-esc="'%.2f' % (doc.discount_fixed or 0.0)"/>)</span>
+                            </div>
+                        </t>
+
+                        <div>
+                            <span>Amount Received:</span>
+                            <span class="received">$<t t-esc="'%.2f' % (doc.amount_received or 0.0)"/></span>
+                        </div>
+
+                        <t t-if="doc.owner_unpaid_balance and doc.owner_unpaid_balance != 0">
+                            <div class="balance">
+                                <span>Owner Unpaid Balance:</span>
+                                <span>$<t t-esc="'%.2f' % (doc.owner_unpaid_balance or 0.0)"/></span>
+                            </div>
+                        </t>
+
+                        <div class="grand">
+                            <span>TOTAL AMOUNT:</span>
+                            <span>$<t t-esc="'%.2f' % (doc.total_amount or 0.0)"/></span>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="footer">
+                        <div><strong>Healthy Tails Veterinary Clinic</strong></div>
+                        <div>123 Main Street, Anytown</div>
+                        <div>Tel: (555) 123-4567</div>
+                        <div style="font-size:10px; margin-top:2px;">Thank you for your business!</div>
+                    </div>
+
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

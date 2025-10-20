@@ -1,0 +1,17 @@
+<odoo>
+    <record id="treatment_charge_product_new" model="product.template">
+        <field name="name">Treatment Charge</field>
+        <field name="type">service</field>
+        <field name="list_price">500.0</field>
+        <field name="sale_ok" eval="True"/>
+        <field name="purchase_ok" eval="False"/>
+    </record>
+
+    <record id="discount_product_new" model="product.template">
+        <field name="name">Discount</field>
+        <field name="type">service</field>
+        <field name="list_price">-1.0</field>
+        <field name="sale_ok" eval="True"/>
+        <field name="purchase_ok" eval="False"/>
+    </record>
+</odoo>

@@ -1,0 +1,41 @@
+<odoo>
+    <record id="view_vet_animal_history_wizard_form" model="ir.ui.view">
+        <field name="name">vet.animal.history.wizard.form</field>
+        <field name="model">vet.animal.history.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Animal Visit History Search">
+                <group>
+                    <field name="animal_id" options="{'no_create': True}"/>
+                    <field name="animal_name"/>
+                    <field name="partner_id" options="{'no_create': True}"/>
+                    <field name="contact_number"/>
+                    <field name="total_visits"/>
+                </group>
+                <separator string="Services / Treatments"/>
+                <field name="history_line_ids" nolabel="1">
+                    <list create="false" delete="false" editable="top">
+                        <field name="visit_date" readonly="1" delete="false"/>
+                        <field name="doctor" readonly="1" delete="false"/>
+                        <field name="notes" readonly="1" delete="false"/>
+                        <field name="total_amount" readonly="1" delete="false"/>
+                        <field name="service_names" readonly="1" delete="false"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_search_history" string="Search" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+
+            </form>
+        </field>
+    </record>
+
+    <record id="action_vet_animal_history_wizard" model="ir.actions.act_window">
+        <field name="name">Search Animal Visit History</field>
+        <field name="res_model">vet.animal.history.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_vet_animal_history_wizard_form"/>
+        <field name="target">new</field>
+
+    </record>
+</odoo>
