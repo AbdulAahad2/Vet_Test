@@ -1,0 +1,17 @@
+.analytic-select-card {
+    cursor: pointer !important;
+    transition: all 0.3s ease;
+    border: 2px solid transparent !important;
+}
+
+.analytic-select-card.selected {
+    border-color: #28a745 !important;
+    background-color: #d4edda !important;
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3) !important;
+}
+
+.analytic-select-card:hover {
+    border-color: #007bff !important;
+    transform: scale(1.01);
+}
