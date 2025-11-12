@@ -30,7 +30,7 @@ class VetDashboard(models.Model):
                     (SELECT COUNT(*) FROM vet_animal) AS value,
                     'primary' AS color,
                     'fa fa-paw' AS icon,
-                    '/odoo/action-948' AS url,
+                    '/odoo/action-496' AS url,
                     0 AS pending_count,
                     0 AS paid_count
                 UNION ALL
@@ -60,7 +60,7 @@ class VetDashboard(models.Model):
                     0 AS value,
                     'graph' AS color,
                     'fa fa-money fa-2x text-success' AS icon,
-                    '/web#action=vet_new.action_invoices_graph' AS url,
+                    '/web#action=vet_test.action_invoices_graph' AS url,
                     (SELECT COUNT(*) FROM account_move WHERE move_type='out_invoice' AND payment_state!='paid') AS pending_count,
                     (SELECT COUNT(*) FROM account_move WHERE move_type='out_invoice' AND payment_state='paid') AS paid_count
             )

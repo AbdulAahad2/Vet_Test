@@ -4,6 +4,18 @@
         <field name="model">vet.animal.history.wizard</field>
         <field name="arch" type="xml">
             <form string="Animal Visit History Search">
+
+                <!-- ✅ Owner Information Section -->
+                <group string="Owner Information" class="p-2 border rounded shadow-sm" style="background:#f8f9fa; margin-bottom:0;">
+                    <field name="owner_id" on_change="1"/>
+                    <field name="contact_number" on_change="1"/>
+                    <field name="animal_ids" widget="many2many_tags" string="Owner's Animals" domain="[('owner_id', '=', owner_id)]"/>
+                    <field name="selected_animal_id" string="Select Animal" domain="[('id', 'in', animal_ids)]"/>
+                </group>
+
+                <separator string="Animal Details"/>
+
+                <!-- ✅ Animal Info and Summary -->
                 <group>
                     <field name="animal_id" options="{'no_create': True}"/>
                     <field name="animal_name"/>
@@ -11,21 +23,24 @@
                     <field name="contact_number"/>
                     <field name="total_visits"/>
                 </group>
+
                 <separator string="Services / Treatments"/>
+
+                <!-- ✅ Visit History Lines -->
                 <field name="history_line_ids" nolabel="1">
                     <list create="false" delete="false" editable="top">
-                        <field name="visit_date" readonly="1" delete="false"/>
-                        <field name="doctor" readonly="1" delete="false"/>
-                        <field name="notes" readonly="1" delete="false"/>
-                        <field name="total_amount" readonly="1" delete="false"/>
-                        <field name="service_names" readonly="1" delete="false"/>
+                        <field name="visit_date" readonly="1" options="{'width': '80px'}"/>
+                        <field name="doctor" readonly="1" options="{'width': '120px'}"/>
+                        <field name="total_amount" readonly="1" options="{'width': '100px'}"/>
+                        <field name="service_names" readonly="1" widget="text" attrs="{'wrap': True}" options="{'width': '400px'}"/>
+                        <field name="notes" readonly="1" widget="text" attrs="{'wrap': True}" options="{'width': '250px'}"/>
                     </list>
                 </field>
+
                 <footer>
                     <button name="action_search_history" string="Search" type="object" class="btn-primary"/>
                     <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>
-
             </form>
         </field>
     </record>
@@ -36,6 +51,5 @@
         <field name="view_mode">form</field>
         <field name="view_id" ref="view_vet_animal_history_wizard_form"/>
         <field name="target">new</field>
-
     </record>
 </odoo>

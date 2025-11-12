@@ -70,7 +70,7 @@
                 <group>
                     <field name="visit_id" invisible="1"/>
                     <field name="payment_method"/>
-                    <field name="journal_id"/>
+                    <field name="journal_id" invisible="1"/>
                     <field name="amount"/>
                 </group>
                 <footer>
@@ -106,12 +106,21 @@
 
 
                     </header>
-                    
+
                     <button name="action_pay_invoice" type="object" string="Pay Invoice"/>
                     <button name="action_print_visit_receipt" type="object" string="Print Receipt" class="btn-primary"/>
+
+
                     <div class="oe_title mb-2">
                         <h2><field name="name"/></h2>
+
+
+
+
+
+
                     </div>
+
                     <!-- LEFT PANEL -->
                     <group style="flex:2; gap:0.2rem; margin:0;">
                         <!-- Owner Information -->
@@ -150,6 +159,7 @@
                                         <field name="service_id" string="Item" style="border-bottom:1px solid #eee; text-align:left; width:50%; box-sizing:border-box;"/>
                                         <field name="quantity" string="Qty" style="border-bottom:1px solid #eee; text-align:right; width:15%; box-sizing:border-box;"/>
                                         <field name="price_unit" string="Price" readonly="1" style="border-bottom:1px solid #eee; text-align:right; width:20%; box-sizing:border-box;"/>
+                                        <field name="line_discount" string="Disc %" readonly="1"/>
                                         <field name="subtotal" string="Subtotal" readonly="1" style="border-bottom:1px solid #eee; text-align:right; width:15%; box-sizing:border-box;"/>
                                     </list>
                                 </field>
@@ -164,6 +174,7 @@
                             </group>
                         </group>
                     </group>
+
                     <!-- NOTEBOOK FOR SERVICES / TESTS / MEDICINES -->
                     <notebook class="mt-2">
                         <page string="Services">
@@ -171,7 +182,8 @@
                                 <list editable="bottom">
                                     <field name="service_id" domain="[('service_type','=','service')]"/>
                                     <field name="quantity"/>
-                                    <field name="price_unit"/>
+                                    <field name="line_discount" string="Disc %"/>
+                                    <field name="price_unit" readonly="0"/>
                                     <field name="subtotal" readonly="1"/>
                                 </list>
                             </field>
@@ -181,7 +193,8 @@
                                 <list editable="bottom">
                                     <field name="service_id" string="Test" domain="[('service_type','=','test')]"/>
                                     <field name="quantity"/>
-                                    <field name="price_unit"/>
+                                    <field name="line_discount" string="Disc %"/>
+                                    <field name="price_unit" readonly="1"/>
                                     <field name="subtotal" readonly="1"/>
                                 </list>
                             </field>
@@ -191,7 +204,8 @@
                                 <list editable="bottom">
                                     <field name="service_id" string="Vaccine" domain="[('service_type','=','vaccine')]"/>
                                     <field name="quantity"/>
-                                    <field name="price_unit"/>
+                                    <field name="line_discount" string="Disc %"/>
+                                    <field name="price_unit" readonly="1"/>
                                     <field name="subtotal" readonly="1"/>
                                 </list>
                             </field>

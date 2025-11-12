@@ -1,73 +1,143 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <!-- Search View -->
-    <record id="view_vet_animal_visit_invoice_search" model="ir.ui.view">
-        <field name="name">vet.animal.visit.invoice.search</field>
-        <field name="model">account.move</field>
-        <field name="priority" eval="100"/>
-        <field name="arch" type="xml">
-            <search string="Invoices">
-                <field name="name"/>
-                <field name="invoice_date" string="Invoice Date"/>
-                <field name="partner_id"/>
-                <field name="payment_method"/>
-                <!-- ADD: Analytic Account Filter -->
-                <field name="analytic_display" string="Branch"/>
+    <data noupdate="0">
+        <!-- ========================================================= -->
+        <!-- 1. SEARCH VIEW                                            -->
+        <!-- ========================================================= -->
+        <record id="view_vet_animal_visit_invoice_search" model="ir.ui.view">
+            <field name="name">vet.animal.visit.invoice.search</field>
+            <field name="model">account.move</field>
+            <field name="arch" type="xml">
+                <search string="Invoices">
+                    <field name="partner_id"/>
+                    <field name="payment_method"/>
+                    <field name="partner_id"
+                       string="Contact Number"
+                       filter_domain="[('partner_id.phone', 'ilike', self)]"/>
+                    <field name="name" string="Invoice #" filter_domain="['|', ('name', 'ilike', self), ('ref', 'ilike', self)]"/>
+                    <field name="name" 
+                       string="Invoice From #" 
+                       filter_domain="[('name', '&gt;=', self)]"/>
+                    <field name="name" 
+                       string="Invoice To #" 
+                       filter_domain="[('name', '&lt;=', self)]"/>
+                    <field name="payment_method"/>
+                    <filter string="Draft"      name="filter_draft"   domain="[('state','=','draft')]"/>
+                    <filter string="Posted"     name="filter_posted"  domain="[('state','=','posted')]"/>
+                    <filter string="Paid"       name="filter_paid"    domain="[('payment_state','=','paid')]"/> 
+                    <filter string="Partial Paid"
+                            name="filter_partial_paid"
+                            domain="[('payment_state','=','partial')]"/>
+                    <filter name="unpaid_invoices" string="Unpaid" domain="[('payment_state','=','not_paid')]"/>
+                    <filter string="Online/Credit Payment"
+                            name="filter_online"
+                            domain="[('payment_method','in',('online','credit','credit_card'))]"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Invoice Date"   name="group_invoice_date"
+                                context="{'group_by': 'invoice_date'}"/>
+                        <filter string="Payment Method" name="group_payment_method"
+                                context="{'group_by': 'payment_method'}"/>
+                        <filter string="Customer"       name="group_customer"
+                                context="{'group_by': 'partner_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
 
-                <filter string="Draft" name="filter_draft" domain="[('state','=','draft')]"/>
-                <filter string="Posted" name="filter_posted" domain="[('state','=','posted')]"/>
-                <filter string="Paid" name="filter_paid" domain="[('payment_state','=','paid')]"/>
-                <filter string="Cash Payment" name="filter_cash" domain="[('payment_method','=','cash')]"/>
-                <filter string="Bank Payment" name="filter_bank" domain="[('payment_method','=','bank')]"/>
-                <filter string="Online/Credit Payment" name="filter_online" domain="[('payment_method','in',('online','credit','credit_card'))]"/>
+        <!-- ========================================================= -->
+        <!-- 2. LIST VIEW                                              -->
+        <!-- ========================================================= -->
+        <record id="view_vet_animal_visit_invoice_list" model="ir.ui.view">
+            <field name="name">vet.animal.visit.invoice.list</field>
+            <field name="model">account.move</field>
+            <field name="priority" eval="100"/>
+            <field name="arch" type="xml">
+                <list string="Invoices"
+                      delete="false"
+                      decoration-success="payment_state=='paid'"
+                      decoration-warning="payment_state=='partial'"
+                      decoration-danger="payment_state=='not_paid'">
 
-                <group expand="0" string="Group By">
-                    <filter string="Invoice Date" name="group_invoice_date" context="{'group_by': 'invoice_date'}"/>
-                    <filter string="Payment Method" name="group_payment_method" context="{'group_by': 'payment_method'}"/>
-                    <filter string="Customer" name="group_customer" context="{'group_by': 'partner_id'}"/>
-                    <!-- ADD: Group by Branch -->
-                    <filter string="Branch" name="group_branch" context="{'group_by': 'analytic_display'}"/>
-                </group>
-            </search>
-        </field>
-    </record>
+                    <field name="name"               string="Invoice #"/>
+                    <field name="invoice_date"       string="Date"/>
+                    <field name="payment_method"     string="Pay Method"/>
+                    <field name="amount_total"       string="Total"
+                           widget="monetary" sum="Total"/>
 
-    <!-- List View -->
-    <record id="view_vet_animal_visit_invoice_list" model="ir.ui.view">
-        <field name="name">vet.animal.visit.invoice.list</field>
-        <field name="model">account.move</field>
-        <field name="priority" eval="100"/>
-        <field name="arch" type="xml">
-            <list string="Invoices" editable="bottom" delete="false">
-                <field name="name" string="Invoice Number"/>
-                <field name="invoice_date" string="Invoice Date"/>
-                <field name="payment_method" string="Payment Method"/>
-                <field name="amount_total" string="Total Amount" widget="monetary"/>
-                <field name="payment_state" string="Payment Status"/>
-                <field name="animal_display_name" string="Animal Name" optional="show"/>
-                <field name="state" string="Status" optional="show"/>
-                <field name="analytic_display" string="Branch" optional="hide"/>
+                    <field name="owner_unpaid_balance"
+                           string="Owner Unpaid"
+                           widget="monetary"
+                           sum="Owner Unpaid"/>
 
-                <!-- HIDDEN FIELDS: ONLY FOR TOTALS -->
-                <field name="dashboard_total_cash" invisible="1" sum="Cash Total"/>
-                <field name="dashboard_total_bank" invisible="1" sum="Bank Total"/>
-                <field name="dashboard_total_online" invisible="1" sum="Online Total"/>
-            </list>
-        </field>
-    </record>
+                    <field name="payment_state"      string="Status"/>
+                    <field name="animal_display_name" string="Animal" optional="show"/>
+                    <field name="state"              string="State" optional="show"/>
 
-    <!-- Action -->
-    <record id="invoice_list_action" model="ir.actions.act_window">
-        <field name="name">Invoices</field>
-        <field name="res_model">account.move</field>
-        <field name="view_mode">list,form</field>
-        <field name="views" eval="[
-            (ref('vet_test.view_vet_animal_visit_invoice_list'), 'list'),
-            (ref('account.view_move_form'), 'form')
-        ]"/>
-        <field name="view_id" ref="vet_test.view_vet_animal_visit_invoice_list"/>
-        <field name="search_view_id" ref="vet_test.view_vet_animal_visit_invoice_search"/>
-        <field name="domain">[('move_type', '=', 'out_invoice')]</field>
-        <field name="context">{}</field>
-    </record>
+                    <!-- Owner name from vet.animal.owner -->
+                    <field name="vet_owner_id"
+                           string="Owner"
+                           widget="many2one"
+                           options="{'no_create': True}"/>
+
+                    <!-- Hidden fields for the “Totals” row -->
+                    <field name="invoice_unpaid_balance"
+                           string="Pending Balance"
+                           widget="monetary"
+                           sum="Invoice Unpaid"/>
+                    <field name="dashboard_total_cash"   sum="Cash"/>
+                    <field name="dashboard_total_bank"   sum="Bank"/>
+                    <field name="dashboard_total_online" sum="Online"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- ========================================================= -->
+        <!-- 3. LIST ACTION                                            -->
+        <!-- ========================================================= -->
+        <record id="invoice_list_action" model="ir.actions.act_window">
+            <field name="name">Invoices</field>
+            <field name="res_model">account.move</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" ref="view_vet_animal_visit_invoice_list"/>
+            <field name="search_view_id" ref="view_vet_animal_visit_invoice_search"/>
+            <field name="domain">[('move_type', '=', 'out_invoice')]</field>
+            <field name="context">{}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create your first invoice!
+                </p>
+            </field>
+        </record>
+
+        <!-- ========================================================= -->
+        <!-- 4. GRAPH VIEW (BAR CHART)                                 -->
+        <!-- ========================================================= -->
+        <record id="view_vet_animal_visit_invoice_graph" model="ir.ui.view">
+            <field name="name">vet.animal.visit.invoice.graph</field>
+            <field name="model">account.move</field>
+            <field name="arch" type="xml">
+                <graph string="Invoices Graph" type="bar">
+                    <field name="payment_method" type="col"/>
+                    <field name="amount_total"    type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- ========================================================= -->
+        <!-- 5. GRAPH ACTION (the one that was missing)                -->
+        <!-- ========================================================= -->
+        <record id="action_invoices_graph" model="ir.actions.act_window">
+            <field name="name">Invoices Graph</field>
+            <field name="res_model">account.move</field>
+            <field name="view_mode">graph</field>
+            <field name="view_id" ref="view_vet_animal_visit_invoice_graph"/>
+            <field name="domain">[('move_type', '=', 'out_invoice')]</field>
+            <field name="context">{
+                'graph_measure': 'amount_total',
+                'graph_mode': 'bar',
+                'search_default_group_payment_method': 1
+            }</field>
+        </record>
+
+    </data>
 </odoo>
